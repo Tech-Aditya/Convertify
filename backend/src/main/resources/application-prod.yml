@@ -13,6 +13,12 @@ spring:
 server:
   forward-headers-strategy: framework
   shutdown: graceful
+  # Small instances (e.g. Render free: 512 MB, 0.1 CPU): Tomcat's default of 200 threads only adds
+  # memory, since requests take milliseconds and one slow core cannot run more in parallel anyway.
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:20}
+      min-spare: 2
 
 # INFO by default; DEBUG only when explicitly requested (LOG_LEVEL_APP=DEBUG).
 logging:

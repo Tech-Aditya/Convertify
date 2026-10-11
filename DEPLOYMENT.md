@@ -37,7 +37,7 @@ See [.env.example](.env.example) for the full list.
 - **Profiles:** runs with `SPRING_PROFILES_ACTIVE=prod,container`:
   - `prod`: plain INFO logs, 12 h rate cache, `X-Forwarded-*` headers honoured behind the platform's proxy, graceful shutdown.
   - `container`: logs go **only to stdout** (the platform collects them). No log files are written, because container disks are ephemeral.
-- **User and memory:** runs as a non-root user. The heap is sized from the container memory limit (`-XX:MaxRAMPercentage=75`), and the JVM exits on out-of-memory so the platform restarts it.
+- **User and memory:** runs as a non-root user. JVM flags in `JAVA_TOOL_OPTIONS` are tuned for 512 MB instances: the heap gets 60% of the container limit, SerialGC, small thread stacks, a capped metaspace and code cache, and Tomcat is capped at 20 threads (`SERVER_MAX_THREADS`). Measured with those limits, the app uses about 190 MB under load. The JVM exits on out-of-memory so the platform restarts it. On a bigger instance, override `JAVA_TOOL_OPTIONS`.
 - **Health check:** `GET /actuator/health` returns `{"status":"UP"}` (liveness at `/actuator/health/liveness`, readiness at `/actuator/health/readiness`). No other actuator endpoints are exposed.
 - **Storage:** nothing is stored on disk. Exchange rates are cached in memory and simply refetched after a restart.
 
@@ -80,7 +80,7 @@ Render has no native Java runtime, so Convertify deploys from its `Dockerfile`. 
 5. **Deploy.** The first build downloads the Java 25 images and Maven dependencies, which takes a few minutes.
 6. **Verify:** open `https://<service>.onrender.com/`, run a conversion, and check `/actuator/health`.
 
-Render's free instances sleep after inactivity, so the first request after idling takes a little longer while the JVM starts.
+Render's free instances (512 MB, 0.1 CPU) sleep after 15 minutes without traffic. The first request after that waits while the JVM starts, roughly 30–60 seconds on 0.1 CPU (about 3 seconds on a full core). Nothing is lost while it sleeps: there is no on-disk state, and exchange rates are fetched again.
 
 ## Railway deployment (Docker)
 
