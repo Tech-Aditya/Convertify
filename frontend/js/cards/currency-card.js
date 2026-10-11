@@ -31,7 +31,10 @@ const currencyItems = (currencies) => {
 };
 
 const currencyPicker = (items, value) =>
-  createCombobox({ items, value, noun: 'currencies', searchHint: 'Search currency or country' });
+  createCombobox({
+    items, value, noun: 'currencies', searchHint: 'Search currency or country',
+    emptyHint: 'Try a code (KRW), a name (won) or a country (Korea).'
+  });
 
 /** One-line provenance for the card footer, e.g. "Rates updated Sep 29, 5:32 AM · ExchangeRate-API". */
 function provenanceText(rates) {

@@ -437,10 +437,12 @@ svg { display: block; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .combo.is-open .combo-input {
-  cursor: text; padding-left: 38px; padding-right: 74px;
+  cursor: text; padding-left: 36px;
   background-image: var(--search-icon);
-  background-repeat: no-repeat; background-position: left 13px center; background-size: 16px;
+  background-repeat: no-repeat; background-position: left 12px center; background-size: 16px;
 }
+/* Room for the clear button only while it shows, so narrow fields keep space for typing. */
+.combo.is-open:has(.combo-clear:not([hidden])) .combo-input { padding-right: 74px; }
 .combo-toggle, .combo-clear {
   position: absolute; top: 50%; translate: 0 -50%;
   display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
@@ -472,6 +474,10 @@ svg { display: block; }
   min-height: 44px; padding: 8px 10px; border-radius: 8px; cursor: pointer;
   font-size: 0.9rem; line-height: 1.35;
 }
+/* Name-first rows (units, categories): no code column; the name is the primary text. */
+.combo[data-layout="name"] .combo-option { grid-template-columns: minmax(0, 1fr) auto; }
+.combo[data-layout="name"] .combo-name { font-weight: 500; color: var(--text); }
+.combo[data-layout="name"] .combo-option[aria-selected="true"] .combo-name { color: var(--accent); }
 .combo-option[data-active] { background: color-mix(in srgb, var(--accent) 13%, transparent); }
 .combo-option[aria-selected="true"] { box-shadow: inset 3px 0 0 var(--accent); }
 .combo-code { font-weight: 650; letter-spacing: 0.02em; color: var(--text); font-variant-numeric: tabular-nums; }

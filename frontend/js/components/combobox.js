@@ -39,33 +39,47 @@ function highlight(text, query) {
  * search box, so it behaves the same with a mouse, a keyboard and a phone's on-screen keyboard
  * (native <select> pickers on phones cannot be searched).
  *
- * @param items  [{ value, code, name, symbol?, keywords?, group? }]; `group` labels sections that
- *               are shown while the query is empty (e.g. "Popular")
- * @param noun   plural noun for announcements, e.g. "currencies"
- * Returns { el, input, value (get/set) }. Choosing an option dispatches a bubbling `change`
- * event from the input; typing a query does not bubble `input`/`change` to the form.
+ * @param items     [{ value, code, name, label?, symbol?, keywords?, group? }]; `label` is the text
+ *                  shown when closed (default "CODE — Name"); `group` labels sections that are
+ *                  shown while the query is empty (e.g. "Popular")
+ * @param layout    'code': rows show code, name and symbol (currencies);
+ *                  'name': rows show name and symbol (units, categories)
+ * @param noun      plural noun for announcements, e.g. "currencies"
+ * @param emptyHint suggestion appended when nothing matches
+ * Returns { el, input, value (get/set), setItems(items, value), onChange(fn) }. Choosing an option
+ * dispatches a bubbling `change` event from the input; typing a query does not bubble
+ * `input`/`change` to the form.
  */
-export function createCombobox({ items, value, noun = 'options', searchHint = 'Search' }) {
+export function createCombobox({
+  items, value, layout = 'code', noun = 'options', searchHint = 'Search', emptyHint = ''
+}) {
   const id = `combo-${++comboCounter}`;
-  const entries = items.map((item) => ({
-    ...item,
-    label: `${item.code} — ${item.name}`,
-    search: {
-      code: normalise(item.code),
-      name: normalise(item.name),
-      nameWords: normalise(item.name).split(/[\s\-()'.,]+/).filter(Boolean),
-      symbols: [item.symbol].filter(Boolean).map(normalise),
-      keywords: normalise(item.keywords),
-      keywordWords: normalise(item.keywords).split(/\s+/).filter(Boolean)
-    }
-  }));
-  const byValue = new Map(entries.map((entry) => [entry.value, entry]));
-
-  let selected = byValue.get(value) ?? entries[0];
+  const listeners = [];
+  let entries = [];
+  let byValue = new Map();
+  let selected;
   let open = false;
   let visible = [];
   let activeIndex = -1;
   let dispatching = false;
+
+  function load(nextItems, nextValue) {
+    entries = nextItems.map((item) => ({
+      ...item,
+      label: item.label ?? `${item.code} — ${item.name}`,
+      search: {
+        code: normalise(item.code),
+        name: normalise(item.name),
+        nameWords: normalise(item.name).split(/[\s\-()'.,]+/).filter(Boolean),
+        symbols: [item.symbol].filter(Boolean).map(normalise),
+        keywords: normalise(item.keywords),
+        keywordWords: normalise(item.keywords).split(/\s+/).filter(Boolean)
+      }
+    }));
+    byValue = new Map(entries.map((entry) => [entry.value, entry]));
+    selected = byValue.get(nextValue) ?? entries[0];
+  }
+  load(items, value);
 
   const input = h('input', {
     class: 'input combo-input', type: 'text', role: 'combobox', autocomplete: 'off', autocapitalize: 'off',
@@ -79,9 +93,12 @@ export function createCombobox({ items, value, noun = 'options', searchHint = 'S
   const empty = h('p', { class: 'combo-empty', hidden: true });
   const popup = h('div', { class: 'combo-popup', hidden: true }, list, empty);
   const status = h('span', { class: 'visually-hidden', role: 'status' });
-  const el = h('div', { class: 'combo' }, input, clearBtn, toggleBtn, popup, status);
+  const el = h('div', { class: 'combo', dataset: { layout } }, input, clearBtn, toggleBtn, popup, status);
 
   const query = () => normalise(input.value);
+  /** A symbol column only when it adds something: not a repeat of the code column or the name. */
+  const showSymbol = (entry) => entry.symbol && entry.symbol.toLowerCase() !== entry.name.toLowerCase()
+    && (layout !== 'code' || entry.symbol !== entry.code);
 
   function showSelection() {
     input.value = selected.label;
@@ -115,14 +132,14 @@ export function createCombobox({ items, value, noun = 'options', searchHint = 'S
           class: 'combo-option', role: 'option', id: `${id}-opt-${index}`,
           'aria-selected': String(entry === selected), dataset: { index: String(index) }
         },
-        h('span', { class: 'combo-code' }, ...highlight(entry.code, firstToken)),
+        layout === 'code' ? h('span', { class: 'combo-code' }, ...highlight(entry.code, firstToken)) : null,
         h('span', { class: 'combo-name' }, ...highlight(entry.name, firstToken)),
-        entry.symbol && entry.symbol !== entry.code ? h('span', { class: 'combo-symbol', 'aria-hidden': 'true' }, entry.symbol) : null);
+        showSymbol(entry) ? h('span', { class: 'combo-symbol', 'aria-hidden': 'true' }, entry.symbol) : null);
       })
     ]));
 
     empty.hidden = visible.length > 0;
-    empty.textContent = `No ${noun} match “${input.value.trim()}”. Try a code (KRW), a name (won) or a country (Korea).`;
+    empty.textContent = `No ${noun} match “${input.value.trim()}”.${emptyHint ? ` ${emptyHint}` : ''}`;
     clearBtn.hidden = !input.value || !open;
     status.textContent = tokens.length ? `${visible.length} ${visible.length === 1 ? 'result' : 'results'}` : '';
     setActive(tokens.length ? (visible.length ? 0 : -1) : visible.indexOf(selected), { scroll: 'center' });
@@ -136,7 +153,8 @@ export function createCombobox({ items, value, noun = 'options', searchHint = 'S
       option.setAttribute('data-active', '');
       input.setAttribute('aria-activedescendant', option.id);
       if (scroll === 'center') {
-        list.scrollTop = option.offsetTop - list.clientHeight / 2 + option.offsetHeight / 2;
+        // The popup is the scroller (and the options' offsetParent).
+        popup.scrollTop = option.offsetTop - popup.clientHeight / 2 + option.offsetHeight / 2;
       } else {
         option.scrollIntoView({ block: 'nearest' });
       }
@@ -203,6 +221,7 @@ export function createCombobox({ items, value, noun = 'options', searchHint = 'S
       dispatching = true;
       input.dispatchEvent(new Event('change', { bubbles: true }));
       dispatching = false;
+      listeners.forEach((fn) => fn(selected.value));
     }
   }
 
@@ -299,6 +318,13 @@ export function createCombobox({ items, value, noun = 'options', searchHint = 'S
       if (!entry) return;
       selected = entry;
       if (open) render(); else showSelection();
-    }
+    },
+    /** Replaces the options (e.g. after a category change), keeping `value` if it still exists. */
+    setItems(nextItems, nextValue = selected?.value) {
+      load(nextItems, nextValue);
+      if (open) render(); else showSelection();
+    },
+    /** Called with the new value when the user picks a different option (not on programmatic sets). */
+    onChange(fn) { listeners.push(fn); }
   };
 }
