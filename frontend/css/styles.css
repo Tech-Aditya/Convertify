@@ -46,6 +46,7 @@
   --t-med: 220ms;
 
   --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23767d88' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  --search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23767d88' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='8.5' cy='8.5' r='5.5'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E");
 
   /* Default accent outside cards */
   --accent: #34598f;
@@ -87,6 +88,7 @@
 
   --shadow-control: none;
   --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%239099a5' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  --search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%239099a5' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='8.5' cy='8.5' r='5.5'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E");
   --accent: #94b4e4;
 
   --page-bg: #0e1115;
@@ -308,7 +310,8 @@ svg { display: block; }
   border: 1px solid var(--card-line);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  /* Not overflow: hidden, so dropdowns (the currency search) can extend past the card. The
+     header rounds its own top corners instead. */
   transition: box-shadow var(--t-med) var(--ease), border-color var(--t-med) var(--ease);
 }
 
@@ -346,6 +349,7 @@ svg { display: block; }
   padding: 20px var(--card-pad);
   background: var(--head-bg);
   border-bottom: 1px solid var(--card-line);
+  border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
 }
 .card-icon {
   display: inline-grid; place-items: center; flex-shrink: 0;
@@ -403,6 +407,65 @@ svg { display: block; }
 }
 .input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 16%, transparent); }
 .input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+/* iOS zooms the page when a field with text under 16px is focused. */
+@media (pointer: coarse) {
+  .input, .select { font-size: 16px; }
+}
+
+/* Searchable picker (combobox): the field is also the search box. */
+.combo { position: relative; }
+.combo-input {
+  padding-right: 42px; cursor: pointer;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.combo.is-open .combo-input {
+  cursor: text; padding-left: 38px; padding-right: 74px;
+  background-image: var(--search-icon);
+  background-repeat: no-repeat; background-position: left 13px center; background-size: 16px;
+}
+.combo-toggle, .combo-clear {
+  position: absolute; top: 50%; translate: 0 -50%;
+  display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
+  border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer;
+}
+.combo-toggle { right: 5px; background: var(--chevron) no-repeat center; transition: rotate var(--t-fast) var(--ease); }
+.combo.is-open .combo-toggle { rotate: 180deg; }
+.combo-clear { right: 38px; }
+.combo-clear svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.combo-toggle:hover, .combo-clear:hover { background-color: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--text); }
+
+.combo-popup {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 25;
+  max-height: 320px; overflow-y: auto; overscroll-behavior: contain;
+  padding: 6px; border-radius: var(--radius-control);
+  background: var(--field-bg, var(--surface)); border: 1px solid var(--field-line, var(--border-strong));
+  box-shadow: 0 18px 40px -16px rgb(15 20 28 / 0.35), 0 2px 6px rgb(15 20 28 / 0.08);
+}
+.combo-popup.is-above { top: auto; bottom: calc(100% + 6px); }
+.combo-list { list-style: none; margin: 0; padding: 0; }
+.combo-group {
+  position: sticky; top: -6px; z-index: 1;
+  padding: 10px 10px 6px; margin-inline: -6px; padding-inline: 16px;
+  background: var(--field-bg, var(--surface));
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted);
+}
+.combo-option {
+  display: grid; grid-template-columns: 3.3em minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  min-height: 44px; padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  font-size: 0.9rem; line-height: 1.35;
+}
+.combo-option[data-active] { background: color-mix(in srgb, var(--accent) 13%, transparent); }
+.combo-option[aria-selected="true"] { box-shadow: inset 3px 0 0 var(--accent); }
+.combo-code { font-weight: 650; letter-spacing: 0.02em; color: var(--text); font-variant-numeric: tabular-nums; }
+.combo-option[aria-selected="true"] .combo-code { color: var(--accent); }
+.combo-name { color: var(--label, var(--text-2)); }
+.combo-symbol { font-size: 0.85rem; color: var(--muted); }
+.combo-option mark {
+  background: color-mix(in srgb, var(--accent) 24%, transparent); color: inherit;
+  border-radius: 3px; padding: 0 1px;
+}
+.combo-empty { padding: 14px 10px; font-size: 0.86rem; line-height: 1.5; color: var(--muted); text-align: center; }
+
 /* Date inputs have an intrinsic minimum width; let them shrink, and stack a pair of them
    (start / end) on small phones where two don't fit side by side. */
 .input[type="date"] { min-width: 0; }

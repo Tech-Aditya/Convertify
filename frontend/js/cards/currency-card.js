@@ -1,17 +1,37 @@
 import { api } from '../api.js';
-import { cardError, field, h, numberInput, select, skeleton, swapButton } from '../dom.js';
+import { cardError, field, h, numberInput, skeleton, swapButton } from '../dom.js';
 import { formatCurrency, formatDateTime, formatNumber } from '../format.js';
 import { bindCalculator, readNumber } from '../components/calculator.js';
+import { createCombobox } from '../components/combobox.js';
 import { createResultPanel } from '../components/result-panel.js';
+import { CURRENCY_ALIASES } from './currency-aliases.js';
 
-const currencyOptions = (currencies) => {
-  const option = (c) => ({ value: c.code, label: `${c.code} — ${c.name}` });
-  const featured = currencies.filter((c) => c.featured);
-  const others = currencies.filter((c) => !c.featured);
-  return featured.length
-    ? [{ label: 'Popular', options: featured.map(option) }, { label: 'All currencies', options: others.map(option) }]
-    : currencies.map(option);
+/** "₩" for KRW; null when the browser has no symbol of its own for the code. */
+function currencySymbol(code) {
+  try {
+    const symbol = new Intl.NumberFormat('en', { style: 'currency', currency: code, currencyDisplay: 'narrowSymbol' })
+      .formatToParts(0).find((part) => part.type === 'currency')?.value;
+    return symbol && symbol !== code ? symbol : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Combobox items; the API lists featured currencies first, in their configured order. */
+const currencyItems = (currencies) => {
+  const grouped = currencies.some((c) => c.featured);
+  return currencies.map((c) => ({
+    value: c.code,
+    code: c.code,
+    name: c.name,
+    symbol: currencySymbol(c.code),
+    keywords: CURRENCY_ALIASES[c.code],
+    group: grouped ? (c.featured ? 'Popular' : 'All currencies') : undefined
+  }));
 };
+
+const currencyPicker = (items, value) =>
+  createCombobox({ items, value, noun: 'currencies', searchHint: 'Search currency or country' });
 
 /** One-line provenance for the card footer, e.g. "Rates updated Sep 29, 5:32 AM · ExchangeRate-API". */
 function provenanceText(rates) {
@@ -40,26 +60,27 @@ export async function mountCurrencyCard(container) {
 
   const byCode = new Map(data.currencies.map((c) => [c.code, c]));
   const amountInput = numberInput({ placeholder: 'e.g. 100' });
-  const fromSelect = select(currencyOptions(data.currencies), data.defaultFrom);
-  const toSelect = select(currencyOptions(data.currencies), data.defaultTo);
+  const items = currencyItems(data.currencies);
+  const fromPicker = currencyPicker(items, data.defaultFrom);
+  const toPicker = currencyPicker(items, data.defaultTo);
   const panel = createResultPanel({ placeholder: 'Enter an amount, then convert.' });
   const footnote = h('p', { class: 'card-foot', title: provenanceText(data.rates) }, provenanceText(data.rates));
 
   const form = h('form', { class: 'form', novalidate: true },
     field('Amount', amountInput).el,
     h('div', { class: 'form-row units' },
-      field('From', fromSelect).el,
+      field('From', fromPicker.el, { labelFor: fromPicker.input }).el,
       swapButton('Swap currencies', () => {
-        [fromSelect.value, toSelect.value] = [toSelect.value, fromSelect.value];
+        [fromPicker.value, toPicker.value] = [toPicker.value, fromPicker.value];
         calculator.refresh();
       }),
-      field('To', toSelect).el),
+      field('To', toPicker.el, { labelFor: toPicker.input }).el),
     h('button', { type: 'submit', class: 'btn btn-primary' }, 'Convert'));
 
   const calculator = bindCalculator({
     form,
     panel,
-    buildRequest: () => ({ amount: readNumber(amountInput, 'an amount'), from: fromSelect.value, to: toSelect.value }),
+    buildRequest: () => ({ amount: readNumber(amountInput, 'an amount'), from: fromPicker.value, to: toPicker.value }),
     execute: api.convertCurrency,
     render: (response) => {
       const { from, to } = response;

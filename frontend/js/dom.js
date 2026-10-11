@@ -43,13 +43,16 @@ export const svgIcon = (pathD) => {
   return svg;
 };
 
-/** A labelled field wrapper. Returns { el, control }. */
-export function field(label, control, { hint, hideLabel = false } = {}) {
-  control.id ||= uid('field');
+/**
+ * A labelled field wrapper. Returns { el, control }. When `control` is a composite widget,
+ * `labelFor` names the element inside it that the label belongs to.
+ */
+export function field(label, control, { hint, hideLabel = false, labelFor = control } = {}) {
+  labelFor.id ||= uid('field');
   const hintEl = hint ? h('span', { class: 'field-hint', id: uid('hint') }, hint) : null;
-  if (hintEl) control.setAttribute('aria-describedby', hintEl.id);
+  if (hintEl) labelFor.setAttribute('aria-describedby', hintEl.id);
   const el = h('div', { class: 'field' },
-    h('label', { class: hideLabel ? 'field-label visually-hidden' : 'field-label', for: control.id }, label),
+    h('label', { class: hideLabel ? 'field-label visually-hidden' : 'field-label', for: labelFor.id }, label),
     control,
     hintEl);
   return { el, control };

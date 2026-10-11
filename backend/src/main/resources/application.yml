@@ -89,7 +89,7 @@ convertify:
     base-currency: ${CURRENCY_BASE:USD}
     default-from: USD
     default-to: INR
-    featured: [USD, EUR, GBP, INR, JPY, AUD, CAD, CHF, CNY, SGD, AED]
+    featured: [USD, EUR, GBP, INR, JPY, KRW, AUD, CAD, CHF, CNY, SGD, AED]
     # Decimal places shown for exchange rates.
     rate-scale: 6
     # Banker's rounding for monetary results.
