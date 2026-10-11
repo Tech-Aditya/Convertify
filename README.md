@@ -110,6 +110,7 @@ convertify:
     max-decimal-places: 6
     significant-digits: 6
     max-absolute-value: 1000000000000000
+    max-input-decimal-places: 20
   currency:
     base-currency: ${CURRENCY_BASE:USD}
     provider:
@@ -346,6 +347,15 @@ For providers that expect the key in a header, set `CURRENCY_API_KEY_HEADER` (fo
 2. Run `cd backend && ./mvnw spring-boot:run` (the `dev` profile is active by default).
 3. Edit files in `frontend/` and refresh the browser. There is no build step.
 4. For unit, region or holiday changes, edit `backend/src/main/resources/catalog/*.yml` and restart. Invalid definitions (unknown base unit, duplicate codes, bad factors) stop the app at startup with a clear message.
+
+## Testing
+
+```bash
+cd backend
+./mvnw test
+```
+
+Unit tests cover the decimal parsing, display rounding, input limits, duration formatting and the exchange-rate cache (TTL, stale fallback, back-off). `ApiIntegrationTest` boots the whole app with a stub exchange-rate provider, so it needs no network, and checks every calculator through the REST API, including error responses. GitHub Actions runs `./mvnw verify` on every push and pull request (`.github/workflows/ci.yml`).
 
 ## Future Enhancements
 

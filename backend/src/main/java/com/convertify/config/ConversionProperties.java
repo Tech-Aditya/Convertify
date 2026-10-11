@@ -16,7 +16,8 @@ public record ConversionProperties(
         @Positive int maxDecimalPlaces,
         @Positive int significantDigits,
         @NotNull RoundingMode roundingMode,
-        @NotNull @Positive BigDecimal maxAbsoluteValue) {
+        @NotNull @Positive BigDecimal maxAbsoluteValue,
+        @Positive int maxInputDecimalPlaces) {
 
     /** Context used for all intermediate arithmetic. */
     public MathContext mathContext() {

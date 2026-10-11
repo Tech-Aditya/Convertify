@@ -82,6 +82,8 @@ convertify:
     rounding-mode: HALF_UP
     # Inputs larger than this (in absolute terms) are rejected.
     max-absolute-value: 1000000000000000
+    # Inputs with more decimal places than this are rejected (1e-999999999 would otherwise be accepted).
+    max-input-decimal-places: 20
 
   currency:
     base-currency: ${CURRENCY_BASE:USD}
