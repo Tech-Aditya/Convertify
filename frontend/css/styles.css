@@ -403,6 +403,12 @@ svg { display: block; }
 }
 .input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 16%, transparent); }
 .input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+/* Date inputs have an intrinsic minimum width; let them shrink, and stack a pair of them
+   (start / end) on small phones where two don't fit side by side. */
+.input[type="date"] { min-width: 0; }
+@media (max-width: 400px) {
+  .form-row:has(> .field:nth-child(2) > .input[type="date"]) { grid-template-columns: minmax(0, 1fr); }
+}
 :root[data-theme="dark"] .input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.85); }
 
 .select {
@@ -647,6 +653,13 @@ svg { display: block; }
   max-width: 100%; margin-top: 6px; font-size: 0.74rem; line-height: 1.5; color: var(--muted); opacity: 0.9;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+/* The one-line truncations above keep cards in a row aligned, with the full text in a hover
+   tooltip. Single-column layouts don't need the alignment and touch screens have no hover,
+   so there the text wraps instead of being cut off. */
+@media (max-width: 720px), (hover: none) {
+  .card-foot, .result-caveat, .result-hint { white-space: normal; overflow: visible; text-overflow: clip; }
+  .card-foot { line-height: 1.5; }
+}
 
 /* Error */
 .result[data-state="error"] { border-color: var(--danger-border); background: var(--danger-soft); box-shadow: none; }
@@ -721,7 +734,7 @@ svg { display: block; }
 }
 @media (max-width: 720px) {
   .footer-top { flex-direction: column; gap: 32px; padding-block: 40px 32px; }
-  .footer-links { gap: 32px; }
+  .footer-links { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 }
 
 .noscript { text-align: center; padding: 24px; color: var(--danger); }
@@ -825,6 +838,9 @@ main, .tool-section { position: relative; z-index: 1; }
 }
 
 /* Layered band behind the "Time & dates" section, full-bleed with soft edges. */
+/* 100vw includes a classic scrollbar's width, so the band below would overhang the page by
+   half of it and allow a few pixels of sideways scrolling; clip it to the page instead. */
+main { overflow-x: clip; }
 #calculators::before {
   content: ""; position: absolute; z-index: -1;
   top: 20px; bottom: 36px; left: calc(50% - 50vw); width: 100vw;

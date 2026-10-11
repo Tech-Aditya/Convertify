@@ -23,6 +23,25 @@ export function readNumber(input, label) {
   return value;
 }
 
+/**
+ * Scrolls just enough to bring the result panel fully into view, never past its top (which stays
+ * clear of the sticky header). Does nothing when the panel is already visible. Smooth or instant
+ * follows the page's CSS scroll-behavior, which honours prefers-reduced-motion.
+ */
+function revealResult(el) {
+  const rect = el.getBoundingClientRect();
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const headerOffset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+  const gap = 16;
+  const hiddenBelow = rect.bottom + gap - viewportHeight;
+  const hiddenAbove = headerOffset - rect.top;
+  if (hiddenAbove > 0) {
+    window.scrollBy({ top: -hiddenAbove });
+  } else if (hiddenBelow > 0) {
+    window.scrollBy({ top: Math.min(hiddenBelow, rect.top - headerOffset) });
+  }
+}
+
 export function readDate(input, label) {
   if (!input.value) throw new ValidationError(`Choose ${label}.`, input, { empty: true });
   return input.value;
@@ -59,6 +78,7 @@ export function bindCalculator({ form, panel, buildRequest, execute, render }) {
         invalidControl.setAttribute('aria-invalid', 'true');
       }
       panel.showError(error.message);
+      if (!live) revealResult(panel.el);
       return;
     }
 
@@ -71,6 +91,8 @@ export function bindCalculator({ form, panel, buildRequest, execute, render }) {
       if (current !== sequence) return;
       panel.showError(error.message || 'Something went wrong. Please try again.');
     }
+    // Only an explicit Convert/Calculate moves the page; live updates while typing never do.
+    if (!live) revealResult(panel.el);
   }
 
   const live = debounce(() => {

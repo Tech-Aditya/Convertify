@@ -4,7 +4,7 @@
 
 Convertify puts everyday conversion and calculation tools on one clean page: currency, height, distance, speed, travel time, land area (including regional Indian units) and dates. A Spring Boot backend does the math and a lightweight frontend with no build step presents it. Both ship as **one executable jar**: no database, no other services.
 
-**Live Demo:** <add-after-deployment>
+**Live Demo:** [convertify-x4bu.onrender.com](https://convertify-x4bu.onrender.com/) (free hosting: the first visit after a quiet spell can take up to a minute while the server wakes up)
 
 ---
 
