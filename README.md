@@ -181,7 +181,7 @@ cd backend
 SPRING_PROFILES_ACTIVE=prod PORT=8080 java -jar target/convertify.jar
 ```
 
-In `prod` the app logs plain INFO-level text to the console and to rolling files under `logs/` (see [Logging](#logging)). Add the `container` profile for stdout-only logging. It also sends 1-hour cache headers on static files, honours `X-Forwarded-*` headers behind a proxy, and shuts down gracefully. Put secrets such as `CURRENCY_API_KEY` in the platform's secret store.
+In `prod` the app logs plain INFO-level text to the console and to rolling files under `logs/` (see [Logging](#logging)). Add the `container` profile for stdout-only logging. It also sends 5-minute cache headers on static files (short, so deploys reach browsers quickly), honours `X-Forwarded-*` headers behind a proxy, and shuts down gracefully. Put secrets such as `CURRENCY_API_KEY` in the platform's secret store.
 
 ### Docker
 

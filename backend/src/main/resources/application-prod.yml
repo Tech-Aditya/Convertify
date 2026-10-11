@@ -1,5 +1,5 @@
-# Production profile: plain INFO logging to console + rolling files, long-lived static
-# caching, strict CORS.
+# Production profile: plain INFO logging to console + rolling files, short static caching,
+# strict CORS.
 spring:
   output:
     ansi:
@@ -8,7 +8,10 @@ spring:
     resources:
       cache:
         cachecontrol:
-          max-age: 1h
+          # Short on purpose: files are not fingerprinted, so this bounds how long a browser runs
+          # an old version after a deploy (5 min). It is also below the free-hosting idle sleep
+          # (15 min), so a cached page is never shown while the server behind it is asleep.
+          max-age: 5m
 
 server:
   forward-headers-strategy: framework
