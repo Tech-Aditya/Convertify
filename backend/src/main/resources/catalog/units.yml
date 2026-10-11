@@ -1,0 +1,123 @@
+# ---------------------------------------------------------------------------
+# Unit catalog — the single source of truth for every generic conversion.
+#
+# A value is converted by normalising to the category's base unit and then
+# de-normalising to the target unit:
+#     base   = value * factor + offset
+#     target = (base - offset) / factor
+#
+# `factor` and `offset` accept exact decimal expressions using * and /
+# (evaluated left to right), e.g. "1000/3600" or "459.67*5/9".
+#
+# To add a new category or unit, edit this file only — no Java changes needed.
+# ---------------------------------------------------------------------------
+convertify:
+  units:
+    categories:
+      - code: LENGTH
+        name: Length
+        base-unit: m
+        units:
+          - { code: mm,  name: Millimeter,    symbol: mm,  factor: "0.001" }
+          - { code: cm,  name: Centimeter,    symbol: cm,  factor: "0.01" }
+          - { code: m,   name: Meter,         symbol: m,   factor: "1" }
+          - { code: km,  name: Kilometer,     symbol: km,  factor: "1000" }
+          - { code: in,  name: Inch,          symbol: in,  factor: "0.0254" }
+          - { code: ft,  name: Foot,          symbol: ft,  factor: "0.3048" }
+          - { code: yd,  name: Yard,          symbol: yd,  factor: "0.9144" }
+          - { code: mi,  name: Mile,          symbol: mi,  factor: "1609.344" }
+          - { code: nmi, name: Nautical Mile, symbol: nmi, factor: "1852" }
+
+      - code: AREA
+        name: Area
+        base-unit: m2
+        units:
+          - { code: mm2, name: Square Millimeter, symbol: "mm²", factor: "0.000001" }
+          - { code: cm2, name: Square Centimeter, symbol: "cm²", factor: "0.0001" }
+          - { code: m2,  name: Square Meter,      symbol: "m²",  factor: "1" }
+          - { code: km2, name: Square Kilometer,  symbol: "km²", factor: "1000000" }
+          - { code: in2, name: Square Inch,       symbol: "in²", factor: "0.00064516" }
+          - { code: ft2, name: Square Foot,       symbol: "ft²", factor: "0.09290304" }
+          - { code: yd2, name: Square Yard,       symbol: "yd²", factor: "0.83612736" }
+          - { code: mi2, name: Square Mile,       symbol: "mi²", factor: "2589988.110336" }
+          - { code: ac,  name: Acre,              symbol: ac,    factor: "4046.8564224" }
+          - { code: ha,  name: Hectare,           symbol: ha,    factor: "10000" }
+
+      - code: SPEED
+        name: Speed
+        base-unit: mps
+        units:
+          - { code: mps, name: Meters per second,   symbol: "m/s",  factor: "1" }
+          - { code: kmh, name: Kilometers per hour, symbol: "km/h", factor: "1000/3600" }
+          - { code: mph, name: Miles per hour,      symbol: mph,    factor: "1609.344/3600" }
+          - { code: fps, name: Feet per second,     symbol: "ft/s", factor: "0.3048" }
+          - { code: kn,  name: Knot,                symbol: kn,     factor: "1852/3600" }
+
+      - code: TIME
+        name: Time
+        base-unit: s
+        units:
+          - { code: ms,  name: Millisecond, symbol: ms,  factor: "0.001" }
+          - { code: s,   name: Second,      symbol: s,   factor: "1" }
+          - { code: min, name: Minute,      symbol: min, factor: "60" }
+          - { code: h,   name: Hour,        symbol: h,   factor: "3600" }
+          - { code: d,   name: Day,         symbol: d,   factor: "86400" }
+          - { code: wk,  name: Week,        symbol: wk,  factor: "604800" }
+
+      - code: WEIGHT
+        name: Weight
+        base-unit: kg
+        units:
+          - { code: mg, name: Milligram,  symbol: mg, factor: "0.000001" }
+          - { code: g,  name: Gram,       symbol: g,  factor: "0.001" }
+          - { code: kg, name: Kilogram,   symbol: kg, factor: "1" }
+          - { code: t,  name: Tonne,      symbol: t,  factor: "1000" }
+          - { code: oz, name: Ounce,      symbol: oz, factor: "0.028349523125" }
+          - { code: lb, name: Pound,      symbol: lb, factor: "0.45359237" }
+          - { code: st, name: Stone,      symbol: st, factor: "6.35029318" }
+
+      - code: TEMPERATURE
+        name: Temperature
+        base-unit: K
+        allow-negative: true
+        # Absolute zero — nothing can be colder.
+        minimum-base-value: "0"
+        units:
+          - { code: C, name: Celsius,    symbol: "°C", factor: "1",   offset: "273.15" }
+          - { code: F, name: Fahrenheit, symbol: "°F", factor: "5/9", offset: "459.67*5/9" }
+          - { code: K, name: Kelvin,     symbol: K,    factor: "1",   offset: "0" }
+
+      - code: VOLUME
+        name: Volume
+        base-unit: l
+        units:
+          - { code: ml,     name: Milliliter,         symbol: mL,      factor: "0.001" }
+          - { code: l,      name: Liter,              symbol: L,       factor: "1" }
+          - { code: m3,     name: Cubic Meter,        symbol: "m³",    factor: "1000" }
+          - { code: in3,    name: Cubic Inch,         symbol: "in³",   factor: "0.016387064" }
+          - { code: ft3,    name: Cubic Foot,         symbol: "ft³",   factor: "28.316846592" }
+          - { code: floz,   name: US Fluid Ounce,     symbol: "fl oz", factor: "0.0295735295625" }
+          - { code: cup,    name: US Cup,             symbol: cup,     factor: "0.2365882365" }
+          - { code: gal,    name: US Gallon,          symbol: gal,     factor: "3.785411784" }
+          - { code: impgal, name: Imperial Gallon,    symbol: "imp gal", factor: "4.54609" }
+
+    # Presets are curated views over a category used by the dedicated calculator cards.
+    presets:
+      - code: height
+        name: Height
+        category: LENGTH
+        units: [mm, cm, m, km, in, ft, yd, mi]
+        default-from: cm
+        default-to: m
+      - code: distance
+        name: Distance
+        category: LENGTH
+        units: [mm, cm, m, km, in, ft, yd, mi, nmi]
+        default-from: km
+        default-to: mi
+      - code: speed
+        name: Speed
+        category: SPEED
+        units: [mps, kmh, mph, fps, kn]
+        default-from: kmh
+        default-to: mph

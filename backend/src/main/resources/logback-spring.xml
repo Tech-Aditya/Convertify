@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Convertify logging configuration.
+
+  Appenders
+    CONSOLE       colourful in development, plain (no ANSI) and INFO+ in production
+    FILE          logs/convertify.log        rolled daily and by size, gzipped, capped
+    ERROR_FILE    logs/convertify-error.log  ERROR events only, kept longer
+                  (neither file is used under the "container" profile: stdout only)
+
+  Every line carries the request/correlation id (MDC "requestId", set by
+  RequestCorrelationFilter). Message line breaks are flattened to stop log injection.
+
+  Log levels are NOT set here: use logging.level.* in application*.yml or environment
+  variables (e.g. LOG_LEVEL_APP=DEBUG). File locations and retention come from
+  convertify.logging.* (see application.yml).
+-->
+<configuration scan="false">
+
+    <!-- Spring Boot's conversion rules (%clr, %wEx) and quiet defaults for noisy libraries -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <conversionRule conversionWord="levelColor" class="com.convertify.logging.LevelColorConverter"/>
+
+    <springProperty scope="context" name="LOG_DIR" source="convertify.logging.directory" defaultValue="logs"/>
+    <springProperty scope="context" name="LOG_NAME" source="convertify.logging.file-name" defaultValue="convertify"/>
+    <springProperty scope="context" name="MAX_FILE_SIZE" source="convertify.logging.max-file-size" defaultValue="20MB"/>
+    <springProperty scope="context" name="MAX_HISTORY" source="convertify.logging.max-history" defaultValue="30"/>
+    <springProperty scope="context" name="TOTAL_SIZE_CAP" source="convertify.logging.total-size-cap" defaultValue="1GB"/>
+    <springProperty scope="context" name="ERROR_MAX_HISTORY" source="convertify.logging.error-max-history" defaultValue="90"/>
+    <springProperty scope="context" name="ERROR_TOTAL_SIZE_CAP" source="convertify.logging.error-total-size-cap" defaultValue="256MB"/>
+
+    <!-- Message with CR/LF flattened so user-supplied values can't forge log lines -->
+    <property name="SAFE_MSG" value="%replace(%msg){'[\r\n]+', ' '}"/>
+
+    <property name="CONSOLE_COLOR_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %levelColor(%-5level) %clr([%15.15thread]){faint} %clr([%-8X{requestId:-system}]){magenta} %clr(%-38.38logger{36}){cyan} %clr(:){faint} ${SAFE_MSG}%n%wEx"/>
+    <property name="PLAIN_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15.15thread] [%-8X{requestId:-system}] %-38.38logger{36} : ${SAFE_MSG}%n%wEx"/>
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] [%X{requestId:-system}] %logger{40} - ${SAFE_MSG}%n%ex"/>
+
+    <!-- ===== Console ===== -->
+    <springProfile name="!prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>${CONSOLE_COLOR_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <!-- Production console: plain INFO+ (the stream cloud platforms collect) -->
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+            <encoder>
+                <pattern>${PLAIN_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- ===== Rolling files (everywhere except the "container" profile) ===== -->
+    <springProfile name="!container">
+        <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_DIR}/${LOG_NAME}.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <!-- Daily, plus a new part whenever the current file exceeds MAX_FILE_SIZE -->
+                <fileNamePattern>${LOG_DIR}/archive/${LOG_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+                <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${FILE_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <!-- ERROR events only -->
+        <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_DIR}/${LOG_NAME}-error.log</file>
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>ERROR</level>
+            </filter>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR}/archive/${LOG_NAME}-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+                <maxHistory>${ERROR_MAX_HISTORY}</maxHistory>
+                <totalSizeCap>${ERROR_TOTAL_SIZE_CAP}</totalSizeCap>
+                <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${FILE_PATTERN}</pattern>
+                <charset>UTF-8</charset>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- ===== Containers: stdout only =====
+         Set by the Docker image (SPRING_PROFILES_ACTIVE=prod,container). The platform collects
+         stdout and the filesystem is ephemeral, so no log directory or files are created. -->
+    <springProfile name="container">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+</configuration>

@@ -1,0 +1,9 @@
+# Test / staging profile: production-like behaviour with more diagnostic logging.
+logging:
+  level:
+    com.convertify: ${LOG_LEVEL_APP:DEBUG}
+
+convertify:
+  currency:
+    provider:
+      cache-ttl: ${CURRENCY_CACHE_TTL:30m}

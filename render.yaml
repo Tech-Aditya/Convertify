@@ -1,0 +1,15 @@
+# Render Blueprint — Java has no native runtime on Render, so Convertify deploys from the Dockerfile.
+# No secrets here: values marked `sync: false` are entered in the Render dashboard.
+services:
+  - type: web
+    name: convertify
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+    envVars:
+      # Optional: only needed for a keyed exchange-rate provider.
+      - key: CURRENCY_API_KEY
+        sync: false

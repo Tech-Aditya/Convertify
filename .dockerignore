@@ -1,0 +1,5 @@
+# Allow-list: send only what the Docker build needs.
+*
+!backend/pom.xml
+!backend/src
+!frontend

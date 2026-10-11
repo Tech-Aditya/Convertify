@@ -1,0 +1,30 @@
+# Production profile: plain INFO logging to console + rolling files, long-lived static
+# caching, strict CORS.
+spring:
+  output:
+    ansi:
+      enabled: never    # plain console output for log collectors
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 1h
+
+server:
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+# INFO by default; DEBUG only when explicitly requested (LOG_LEVEL_APP=DEBUG).
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.convertify: ${LOG_LEVEL_APP:INFO}
+    org.apache.catalina: WARN
+    org.springframework.web: WARN
+
+convertify:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:}
+  currency:
+    provider:
+      cache-ttl: ${CURRENCY_CACHE_TTL:12h}

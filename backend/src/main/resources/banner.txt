@@ -1,0 +1,12 @@
+${AnsiColor.CYAN}
+   ██████╗ ██████╗ ███╗   ██╗██╗   ██╗███████╗██████╗ ████████╗██╗███████╗██╗   ██╗
+  ██╔════╝██╔═══██╗████╗  ██║██║   ██║██╔════╝██╔══██╗╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
+  ██║     ██║   ██║██╔██╗ ██║██║   ██║█████╗  ██████╔╝   ██║   ██║█████╗   ╚████╔╝
+  ██║     ██║   ██║██║╚██╗██║╚██╗ ██╔╝██╔══╝  ██╔══██╗   ██║   ██║██╔══╝    ╚██╔╝
+  ╚██████╗╚██████╔╝██║ ╚████║ ╚████╔╝ ███████╗██║  ██║   ██║   ██║██║        ██║
+   ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝╚═╝        ╚═╝
+${AnsiColor.DEFAULT}
+                         ${AnsiStyle.ITALIC}Convert. Calculate. Simplify.${AnsiStyle.NORMAL}
+
+  ${AnsiColor.BRIGHT_BLACK}Version${AnsiColor.DEFAULT} ${convertify.app.version:dev}  ${AnsiColor.BRIGHT_BLACK}|  Spring Boot${AnsiColor.DEFAULT} ${spring-boot.version}  ${AnsiColor.BRIGHT_BLACK}|  Java${AnsiColor.DEFAULT} ${java.version}  ${AnsiColor.BRIGHT_BLACK}|  Profile${AnsiColor.DEFAULT} ${spring.profiles.active:default}
+

@@ -1,0 +1,29 @@
+# Development profile: verbose logging, serve the frontend straight from ../frontend
+# so edits are visible on refresh without rebuilding, and allow a separately hosted
+# frontend dev server to call the API.
+spring:
+  output:
+    ansi:
+      # Colourful console (IDE consoles and modern terminals support ANSI); set LOG_ANSI=detect/never to change.
+      enabled: ${LOG_ANSI:always}
+  web:
+    resources:
+      # Works whether the app is started from backend/ (mvn spring-boot:run) or from the
+      # repository root (IDE run configurations); the packaged copy is the fallback.
+      static-locations:
+        - file:${FRONTEND_DIR:../frontend}/
+        - file:frontend/
+        - classpath:/static/
+      cache:
+        period: 0
+
+logging:
+  level:
+    com.convertify: ${LOG_LEVEL_APP:DEBUG}
+
+convertify:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  currency:
+    provider:
+      cache-ttl: ${CURRENCY_CACHE_TTL:1h}

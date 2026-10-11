@@ -1,0 +1,28 @@
+# Build output
+target/
+*.class
+*.jar
+!**/.mvn/wrapper/*.jar
+
+# Local runtime files
+logs/
+*.log
+.tmp-sockets/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / editor / local tooling
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

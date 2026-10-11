@@ -1,0 +1,126 @@
+# ---------------------------------------------------------------------------
+# Regional land-measurement units.
+#
+# Traditional Indian land units (Bigha, Katha, Kanal, ...) do not have one
+# universal value — they differ between states and sometimes between districts.
+# Each region below lists the units in common use there together with the
+# conversion basis. Every region also gets the standard AREA units from
+# units.yml automatically.
+#
+# Factors are in square meters (the AREA base unit). "N*0.09290304" means
+# N square feet. Values reflect commonly published standards; always confirm
+# with the local land-records office for legal purposes.
+# ---------------------------------------------------------------------------
+convertify:
+  land:
+    disclaimer: >-
+      Traditional land units vary by state and sometimes by district. Values shown use
+      commonly published standards for the selected region — confirm with local land
+      records before relying on them for legal or financial purposes.
+    regions:
+      - code: INTERNATIONAL
+        name: International (standard units)
+        description: Metric and imperial area units only.
+        units: []
+
+      - code: ANDHRA_TELANGANA
+        name: Andhra Pradesh & Telangana
+        units:
+          - { code: cent,    name: Cent,    symbol: cent,    factor: "435.6*0.09290304", basis: "1 Cent = 1/100 Acre = 435.6 sq ft" }
+          - { code: guntha,  name: Guntha,  symbol: guntha,  factor: "1089*0.09290304",  basis: "1 Guntha = 1/40 Acre = 1,089 sq ft" }
+          - { code: ankanam, name: Ankanam, symbol: ankanam, factor: "72*0.09290304",    basis: "1 Ankanam = 72 sq ft" }
+
+      - code: ASSAM
+        name: Assam
+        units:
+          - { code: bigha, name: Bigha, symbol: bigha, factor: "14400*0.09290304", basis: "1 Bigha = 5 Katha = 14,400 sq ft" }
+          - { code: katha, name: Katha, symbol: katha, factor: "2880*0.09290304",  basis: "1 Katha = 20 Lessa = 2,880 sq ft" }
+          - { code: lessa, name: Lessa, symbol: lessa, factor: "144*0.09290304",   basis: "1 Lessa = 144 sq ft" }
+
+      - code: BIHAR
+        name: Bihar
+        units:
+          - { code: bigha,   name: Bigha,   symbol: bigha,   factor: "27225*0.09290304",   basis: "1 Bigha = 20 Katha = 27,225 sq ft" }
+          - { code: katha,   name: Katha,   symbol: katha,   factor: "1361.25*0.09290304", basis: "1 Katha = 20 Dhur = 1,361.25 sq ft" }
+          - { code: dhur,    name: Dhur,    symbol: dhur,    factor: "68.0625*0.09290304", basis: "1 Dhur = 68.0625 sq ft" }
+          - { code: decimal, name: Decimal, symbol: decimal, factor: "435.6*0.09290304",   basis: "1 Decimal = 1/100 Acre = 435.6 sq ft" }
+
+      - code: GUJARAT
+        name: Gujarat
+        units:
+          - { code: bigha,  name: Bigha,  symbol: bigha,  factor: "17424*0.09290304", basis: "1 Bigha = 16 Guntha = 17,424 sq ft" }
+          - { code: guntha, name: Guntha, symbol: guntha, factor: "1089*0.09290304",  basis: "1 Guntha = 1/40 Acre = 1,089 sq ft" }
+
+      - code: HIMACHAL_PRADESH
+        name: Himachal Pradesh
+        units:
+          - { code: bigha, name: Bigha, symbol: bigha, factor: "8712*0.09290304",  basis: "1 Bigha = 20 Biswa = 8,712 sq ft" }
+          - { code: biswa, name: Biswa, symbol: biswa, factor: "435.6*0.09290304", basis: "1 Biswa = 435.6 sq ft" }
+
+      - code: JAMMU_KASHMIR
+        name: Jammu & Kashmir
+        units:
+          - { code: kanal, name: Kanal, symbol: kanal, factor: "5445*0.09290304",   basis: "1 Kanal = 20 Marla = 5,445 sq ft" }
+          - { code: marla, name: Marla, symbol: marla, factor: "272.25*0.09290304", basis: "1 Marla = 272.25 sq ft" }
+
+      - code: KARNATAKA
+        name: Karnataka
+        units:
+          - { code: guntha, name: Guntha, symbol: guntha, factor: "1089*0.09290304",  basis: "1 Guntha = 1/40 Acre = 1,089 sq ft" }
+          - { code: cent,   name: Cent,   symbol: cent,   factor: "435.6*0.09290304", basis: "1 Cent = 1/100 Acre = 435.6 sq ft" }
+
+      - code: KERALA
+        name: Kerala
+        units:
+          - { code: cent, name: Cent, symbol: cent, factor: "435.6*0.09290304", basis: "1 Cent = 1/100 Acre = 435.6 sq ft" }
+          - { code: are,  name: Are,  symbol: are,  factor: "100",              basis: "1 Are = 100 m² ≈ 2.47 Cent" }
+
+      - code: MAHARASHTRA
+        name: Maharashtra
+        units:
+          - { code: guntha, name: Guntha, symbol: guntha, factor: "1089*0.09290304", basis: "1 Guntha = 1/40 Acre = 1,089 sq ft" }
+
+      - code: ODISHA
+        name: Odisha
+        units:
+          - { code: decimal, name: Decimal, symbol: decimal, factor: "435.6*0.09290304", basis: "1 Decimal = 1/100 Acre = 435.6 sq ft" }
+          - { code: guntha,  name: Guntha,  symbol: guntha,  factor: "1089*0.09290304",  basis: "1 Guntha = 1/40 Acre = 1,089 sq ft" }
+
+      - code: PUNJAB
+        name: Punjab
+        units:
+          - { code: kanal, name: Kanal, symbol: kanal, factor: "5445*0.09290304",   basis: "1 Kanal = 20 Marla = 5,445 sq ft" }
+          - { code: marla, name: Marla, symbol: marla, factor: "272.25*0.09290304", basis: "1 Marla = 272.25 sq ft" }
+          - { code: bigha, name: Bigha, symbol: bigha, factor: "9070*0.09290304",   basis: "1 Bigha (kachha) ≈ 9,070 sq ft" }
+
+      - code: HARYANA
+        name: Haryana
+        units:
+          - { code: kanal, name: Kanal, symbol: kanal, factor: "5445*0.09290304",   basis: "1 Kanal = 20 Marla = 5,445 sq ft" }
+          - { code: marla, name: Marla, symbol: marla, factor: "272.25*0.09290304", basis: "1 Marla = 272.25 sq ft" }
+
+      - code: RAJASTHAN
+        name: Rajasthan
+        units:
+          - { code: bigha, name: Bigha, symbol: bigha, factor: "27225*0.09290304",   basis: "1 Bigha (pucca) = 20 Biswa = 27,225 sq ft" }
+          - { code: biswa, name: Biswa, symbol: biswa, factor: "1361.25*0.09290304", basis: "1 Biswa = 1,361.25 sq ft" }
+
+      - code: TAMIL_NADU
+        name: Tamil Nadu
+        units:
+          - { code: cent,   name: Cent,   symbol: cent,   factor: "435.6*0.09290304", basis: "1 Cent = 1/100 Acre = 435.6 sq ft" }
+          - { code: ground, name: Ground, symbol: ground, factor: "2400*0.09290304",  basis: "1 Ground = 2,400 sq ft" }
+
+      - code: UTTAR_PRADESH
+        name: Uttar Pradesh
+        units:
+          - { code: bigha, name: Bigha, symbol: bigha, factor: "27000*0.09290304", basis: "1 Bigha (pucca) = 20 Biswa = 27,000 sq ft" }
+          - { code: biswa, name: Biswa, symbol: biswa, factor: "1350*0.09290304",  basis: "1 Biswa = 1,350 sq ft" }
+
+      - code: WEST_BENGAL
+        name: West Bengal
+        units:
+          - { code: bigha,   name: Bigha,   symbol: bigha,   factor: "14400*0.09290304", basis: "1 Bigha = 20 Katha = 14,400 sq ft" }
+          - { code: katha,   name: Katha,   symbol: katha,   factor: "720*0.09290304",   basis: "1 Katha = 16 Chatak = 720 sq ft" }
+          - { code: chatak,  name: Chatak,  symbol: chatak,  factor: "45*0.09290304",    basis: "1 Chatak = 45 sq ft" }
+          - { code: decimal, name: Decimal, symbol: decimal, factor: "435.6*0.09290304", basis: "1 Decimal = 1/100 Acre = 435.6 sq ft" }
