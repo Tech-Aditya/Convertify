@@ -61,7 +61,14 @@ public class StartupInfoLogger {
         log.info("Java             : {} ({})", Runtime.version(), System.getProperty("java.vendor"));
         log.info("Spring Boot      : {}", SpringBootVersion.getVersion());
         log.info("Server port      : {}{}", port, contextPath.isEmpty() ? "" : " (context path " + contextPath + ")");
-        log.info("Local URL        : {}/  (API {}{}, health {}/actuator/health)", baseUrl, baseUrl, ApiPaths.V1, baseUrl);
+        log.info("Dashboard        : {}/", baseUrl);
+        // Render sets RENDER_EXTERNAL_URL; on other hosts only the local address is known.
+        String publicUrl = environment.getProperty("RENDER_EXTERNAL_URL", "");
+        if (!publicUrl.isBlank()) {
+            log.info("Public URL       : {}/", publicUrl.replaceAll("/+$", ""));
+        }
+        log.info("API base         : {}{}", baseUrl, ApiPaths.V1);
+        log.info("Health check     : {}/actuator/health", baseUrl);
         log.info("Currency provider: {} [{}] via {}, API key {}, cache TTL {}",
                 currency.provider().name(), currency.provider().type(), providerHost(),
                 currency.provider().hasApiKey() ? "configured" : "not configured", Durations.human(currency.provider().cacheTtl()));
@@ -72,8 +79,8 @@ public class StartupInfoLogger {
                 : Path.of(environment.getProperty("convertify.logging.directory", "logs")).toAbsolutePath().normalize());
         log.info("Debug logging    : {}", LoggerFactory.getLogger("com.convertify").isDebugEnabled() ? "on" : "off");
         log.info(RULE);
-        log.info("{} started successfully{}", app.name(),
-                startup == null ? "" : " in %.2f seconds".formatted(startup.toMillis() / 1000.0));
+        log.info("{} started successfully{} — open {}/", app.name(),
+                startup == null ? "" : " in %.2f seconds".formatted(startup.toMillis() / 1000.0), baseUrl);
     }
 
     /** Host of the provider URL template — never the full URL, which may embed the API key. */

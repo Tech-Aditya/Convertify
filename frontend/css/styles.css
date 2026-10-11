@@ -39,6 +39,7 @@
   --radius-pill: 999px;
   --control-h: 44px;
   --card-pad: 24px;
+  --container-pad: 32px;
   --gap-grid: 24px;
 
   --ease: cubic-bezier(0.2, 0, 0, 1);
@@ -155,7 +156,7 @@ svg { display: block; }
 }
 .skip-link:focus { top: 12px; }
 
-.container { width: 100%; max-width: 1248px; margin-inline: auto; padding-inline: 32px; }
+.container { width: 100%; max-width: 1248px; margin-inline: auto; padding-inline: var(--container-pad); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -244,16 +245,33 @@ svg { display: block; }
 @media (max-width: 1120px) {
   .tool-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+/* Narrower screens: the tool links move to a second header row of swipeable chips, so every
+   tool stays one tap away while scrolling. The header grows, so anchors land lower. */
 @media (max-width: 1080px) {
-  .section-nav { display: none; }
-  .header-inner { justify-content: space-between; }
+  html { scroll-padding-top: 116px; }
+  .header-inner { flex-wrap: wrap; justify-content: space-between; height: auto; gap: 0; padding-top: 10px; }
+  .section-nav {
+    order: 3; flex: 1 0 100%; margin: 8px calc(var(--container-pad) * -1) 0;
+    padding: 0 var(--container-pad) 10px;
+    scroll-snap-type: x proximity; scroll-padding-inline: var(--container-pad);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--container-pad), #000 calc(100% - var(--container-pad)), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 var(--container-pad), #000 calc(100% - var(--container-pad)), transparent);
+  }
+  .section-nav ul { width: max-content; gap: 8px; padding: 0; border: 0; background: none; }
+  .section-nav li { scroll-snap-align: start; }
+  .section-nav a {
+    display: flex; align-items: center; min-height: 36px; padding: 0 15px;
+    border: 1px solid var(--border); background: color-mix(in srgb, var(--surface) 80%, transparent);
+  }
+  .section-nav a[aria-current="true"] {
+    color: var(--ink-contrast); background: var(--ink); border-color: var(--ink); box-shadow: none;
+  }
 }
 @media (max-width: 860px) {
   .tool-grid-2 { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 720px) {
-  :root { --card-pad: 20px; --gap-grid: 16px; }
-  .container { padding-inline: 16px; }
+  :root { --card-pad: 20px; --gap-grid: 16px; --container-pad: 16px; }
   .tool-grid-3 { grid-template-columns: minmax(0, 1fr); }
   .hero-inner { padding-block: 20px 18px; }
   .hero-lead { font-size: 0.9rem; }
@@ -261,7 +279,7 @@ svg { display: block; }
   .hero + .tool-section { padding-top: 28px; }
   .tool-section:last-of-type { padding-bottom: 64px; }
   .section-head { margin-bottom: 20px; }
-  html { scroll-padding-top: 76px; }
+  html { scroll-padding-top: 108px; }
 }
 
 /* ---------- 5. Cards & card colour system ----------
