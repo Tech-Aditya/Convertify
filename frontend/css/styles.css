@@ -686,6 +686,22 @@ svg { display: block; }
   animation: spin 0.75s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Shown while the (sleeping) server starts up; see initWakeNotice in main.js. */
+.wake-notice {
+  position: fixed; left: 50%; bottom: 16px; z-index: 40; translate: -50% 0;
+  display: flex; align-items: center; gap: 12px;
+  width: max-content; max-width: calc(100% - 32px); padding: 12px 18px;
+  border-radius: 14px; background: var(--ink); color: var(--ink-contrast);
+  box-shadow: 0 12px 32px -12px rgb(0 0 0 / 0.45);
+  font-size: 0.88rem; line-height: 1.45;
+  animation: wake-in var(--t-med, 220ms) var(--ease) both;
+}
+.wake-notice .spinner {
+  flex-shrink: 0; width: 16px; height: 16px;
+  border-color: color-mix(in srgb, currentColor 30%, transparent); border-top-color: currentColor;
+}
+@keyframes wake-in { from { opacity: 0; translate: -50% 8px; } }
 .result[data-state^="loading"] .result-body { opacity: 0.45; transition: opacity var(--t-med) var(--ease); }
 
 .result-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }

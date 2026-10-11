@@ -1,3 +1,4 @@
+import { h } from './dom.js';
 import { initTheme } from './theme.js';
 import { mountUnitCard } from './cards/unit-card.js';
 import { mountCurrencyCard } from './cards/currency-card.js';
@@ -14,6 +15,24 @@ const MOUNTERS = {
 };
 
 initTheme(document.getElementById('theme-toggle'));
+initWakeNotice();
+
+/**
+ * Free hosting sleeps when idle, and the page itself may come from the browser cache, so the
+ * first requests can wait about a minute while the server starts. Explain the wait instead of
+ * leaving every card spinning silently.
+ */
+function initWakeNotice() {
+  const notice = h('div', { class: 'wake-notice', role: 'status', hidden: true },
+    h('span', { class: 'spinner', 'aria-hidden': 'true' }),
+    h('span', {},
+      h('strong', {}, 'Waking up the server… '),
+      'Convertify sleeps when nobody is using it, so the first load can take up to a minute.'));
+  document.body.append(notice);
+  window.addEventListener('convertify:server-slow', (event) => {
+    notice.hidden = !event.detail.slow;
+  });
+}
 document.getElementById('year').textContent = String(new Date().getFullYear());
 
 // Cards load independently: one failing (e.g. exchange rates) never blocks the others.

@@ -6,8 +6,23 @@
  */
 const config = window.CONVERTIFY_CONFIG ?? {};
 const BASE_URL = (config.apiBaseUrl ?? '').replace(/\/$/, '') + '/api/v1';
-const TIMEOUT_MS = config.requestTimeoutMs ?? 15000;
+const TIMEOUT_MS = config.requestTimeoutMs ?? 90000;
+const SLOW_NOTICE_MS = config.slowNoticeMs ?? 3000;
 const POST_CACHE_LIMIT = 100;
+
+/**
+ * Number of requests that have been waiting longer than SLOW_NOTICE_MS. While it is above zero
+ * the server is most likely starting up (free hosting sleeps when idle); listeners of the
+ * `convertify:server-slow` window event get { detail: { slow: boolean } } on every change.
+ */
+let slowRequests = 0;
+function setSlow(delta) {
+  const before = slowRequests > 0;
+  slowRequests += delta;
+  if (before !== slowRequests > 0) {
+    window.dispatchEvent(new CustomEvent('convertify:server-slow', { detail: { slow: slowRequests > 0 } }));
+  }
+}
 
 export class ApiError extends Error {
   constructor(message, { status = 0, code = 'NETWORK_ERROR', violations = [] } = {}) {
@@ -25,6 +40,8 @@ const postCache = new Map();
 async function request(path, { method = 'GET', body } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  let slow = false;
+  const slowTimer = setTimeout(() => { slow = true; setSlow(1); }, SLOW_NOTICE_MS);
   let response;
   try {
     response = await fetch(BASE_URL + path, {
@@ -35,11 +52,13 @@ async function request(path, { method = 'GET', body } = {}) {
     });
   } catch (error) {
     const message = error.name === 'AbortError'
-      ? 'The server took too long to respond. Please try again.'
+      ? 'The server is taking longer than usual to start. Please try again in a moment.'
       : 'Unable to reach the Convertify server. Check your connection and try again.';
     throw new ApiError(message);
   } finally {
     clearTimeout(timer);
+    clearTimeout(slowTimer);
+    if (slow) setSlow(-1);
   }
 
   let payload = null;

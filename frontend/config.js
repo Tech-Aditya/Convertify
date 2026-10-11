@@ -8,6 +8,10 @@
  */
 window.CONVERTIFY_CONFIG = Object.freeze({
   apiBaseUrl: '',
-  requestTimeoutMs: 15000,
+  // Generous, because free hosting (Render) sleeps when idle and the first request after that
+  // waits while the server starts, which can take about a minute.
+  requestTimeoutMs: 90000,
+  // After this long without a response, a "waking up the server" notice is shown.
+  slowNoticeMs: 3000,
   liveUpdateDelayMs: 350
 });
